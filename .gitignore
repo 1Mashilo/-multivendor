@@ -1,0 +1,28 @@
+# Virtual environment
+venv/
+
+# Compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE settings
+.idea/
+
+# Database
+db.sqlite3
+
+# Static files (if using collectstatic)
+staticfiles/
+
+# Media files
+media/
+
+# Local development settings
+local_settings.py
+
+# Ignore environment-specific settings
+*.env
+
+# Ignore log files
+*.log
