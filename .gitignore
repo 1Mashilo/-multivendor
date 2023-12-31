@@ -27,3 +27,5 @@ local_settings.py
 
 # Ignore log files
 *.log
+# Virtual environment
+venv/
