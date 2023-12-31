@@ -1,0 +1,25 @@
+<!-- vendor/templates/vendor/product_detail.html -->
+{% extends 'vendor/base.html' %}
+
+{% block title %}Product Detail{% endblock %}
+
+{% block body %}
+    <div class="product-container flex">
+        <div class="product shadow-lg w-1/4 rounded-lg m-10">
+            <div class="product-image">
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-40 object-cover">
+            </div>
+            <div class="p-5">
+                <div class="font-bold">
+                    {{ product.name }}
+                </div>
+                <div>
+                    {{ product.description }}
+                </div>
+                <div class="text-green-700 font-bold">
+                    ${{ product.price }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -20,7 +20,7 @@
                         ${{ product.price }}
                     </div>
                     <div class="mt-5"> <!-- Adjusted margin-top -->
-                        <a class="bg-green-500 text-white px-4 py-2" href="#">View Details</a>
+                        <a class="bg-green-500 text-white px-4 py-2" href="{% url 'product-detail' pk=product.pk %}">View Details</a>
                     </div>
                 </div>
             </div>
