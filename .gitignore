@@ -1,5 +1,6 @@
-# Virtual environment
-venv/
+# Tailwind CSS
+node_modules/
+/dist/
 
 # Compiled Python files
 __pycache__/
