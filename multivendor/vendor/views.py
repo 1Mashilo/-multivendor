@@ -1,5 +1,5 @@
 # views.py
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect,reverse
 from .models import Product
 from .forms import ProductForm
 
@@ -47,3 +47,11 @@ def delete_product(request, pk):
         return redirect('product_list')
 
     return render(request, 'vendor/delete_product.html', {'product': product})
+
+def dashboard(request):
+    product_list_url = reverse('product_list')
+    add_product_url = reverse('add_product')
+
+    products = Product.objects.all()
+
+    return render(request, 'vendor/dashboard.html', {'products': products, 'product_list_url': product_list_url, 'add_product_url': add_product_url})

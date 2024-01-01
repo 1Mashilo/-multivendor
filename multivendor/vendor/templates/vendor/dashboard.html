@@ -1,0 +1,42 @@
+{% extends 'vendor/base.html' %}
+
+{% block body %}
+  <div class="flex justify-between">
+    <div class="ml-20 mt-10 font-bold text-xl">My Products</div>
+    <div class="ml-20 mt-10">
+      <a class="bg-green-500 text-white px-2 py-4 mr-8" href="{% url 'add_product' %}">New Product</a>
+    </div>
+  </div>
+
+  <div class="products-container p-10 m-5">
+    {% for product in products %}
+      <div class="flex shadow-lg m-5 p-2 justify-between">
+       <div>
+        <img class="h-20" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRe6YMGGT_SBf3ewtcnEH99Opt5xm3PIsy9gCiIed7k7aqV7u7oU78bW6JZTA&s" alt="">
+        <div>
+            <div>
+          Edit Product
+          </div>
+            <div>
+            <div>{{ product.name }}</div>
+            <div>{{ product.price }}</div>
+          </div>
+        </div>
+
+       </div>
+        <div>
+          <div class="text-2xl">$200</div>
+          <div class="text-xs">Total earnings</div>
+        </div>
+      <div>
+      <div class="text-2xl">20</div>
+      <div class="text-xs">Total orders</div>
+    </div>
+    <div>
+        <div class="text-2xl">4.5</div>
+        <div class="text-xs">Rating</div>
+      </div>
+  </div>
+    {% endfor %}
+  </div>
+{% endblock %}
