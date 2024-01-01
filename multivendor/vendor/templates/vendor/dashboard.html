@@ -11,32 +11,34 @@
   <div class="products-container p-10 m-5">
     {% for product in products %}
       <div class="flex shadow-lg m-5 p-2 justify-between">
-       <div>
-        <img class="h-20" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRe6YMGGT_SBf3ewtcnEH99Opt5xm3PIsy9gCiIed7k7aqV7u7oU78bW6JZTA&s" alt="">
-        <div>
-            <div>
-          Edit Product
-          </div>
-            <div>
-            <div>{{ product.name }}</div>
-            <div>{{ product.price }}</div>
+        <div class="flex w-1/4">
+          <img class="h-20" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRe6YMGGT_SBf3ewtcnEH99Opt5xm3PIsy9gCiIed7k7aqV7u7oU78bW6JZTA&s" alt="">
+          <div class="relative group">
+            <a href="{% url 'edit_product' product.pk %}">
+              <div class="opacity-0 group-hover:opacity-100 duration-300 absolute insert-x-0 p-4 justify-center items-end bg-white font-semibold">
+                Edit Product
+              </div>
+              <div class="ml-5">
+                <div class="font-bold text-sm">{{ product.name }}</div>
+                <div class="text-sm text-green-500">${{ product.price }}</div>
+              </div>
+            </a>
           </div>
         </div>
-
-       </div>
         <div>
           <div class="text-2xl">$200</div>
           <div class="text-xs">Total earnings</div>
         </div>
-      <div>
-      <div class="text-2xl">20</div>
-      <div class="text-xs">Total orders</div>
-    </div>
-    <div>
-        <div class="text-2xl">4.5</div>
-        <div class="text-xs">Rating</div>
+        <div>
+          <div class="text-2xl">20</div>
+          <div class="text-xs">Total orders</div>
+        </div>
+        <div class="pr-5">
+          <div class="text-2xl">4.5</div>
+          <div class="text-xs">Rating</div>
+        </div>
       </div>
-  </div>
     {% endfor %}
   </div>
 {% endblock %}
+
