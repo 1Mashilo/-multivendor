@@ -12,20 +12,13 @@ def register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password1'])
-            user.save()
-            
-            # Log the user in after registration
+            user = form.save()
             login(request, user)
-
-            # Redirect to a success page or dashboard
-            return redirect('dashboard')  # Adjust the URL name accordingly
+            return redirect('dashboard')  # or the desired redirect URL
     else:
         form = UserRegistrationForm()
 
-    return render(request, 'registration/register.html', {'form': form})
-
+    return render(request, 'vendor/register.html', {'form': form})
 
 def product_list(request):
     products = Product.objects.all()
