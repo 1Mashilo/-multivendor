@@ -8,7 +8,7 @@
         <form method="post" class="mt-4">
             {% csrf_token %}
             <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-sm">Yes, Delete</button>
-            <a href="{% url 'product-detail' product.pk %}" class="ml-2 text-gray-600">No, Cancel</a>
+            <a href="{% url 'product-detail' product.pk %}" class=" bg-green-500 text-white px-4 py-2 rounded-sm">No, Cancel</a>
         </form>
     </div>
 {% endblock %}
