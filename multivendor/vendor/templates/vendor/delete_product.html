@@ -1,0 +1,14 @@
+{% extends 'vendor/base.html' %}
+
+{% block title %}Delete Product{% endblock %}
+
+{% block body %}
+    <div class="flex flex-col justify-center items-center min-h-screen">
+        <p>Are you sure you want to delete the product "{{ product.name }}"?</p>
+        <form method="post" class="mt-4">
+            {% csrf_token %}
+            <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-sm">Yes, Delete</button>
+            <a href="{% url 'product-detail' product.pk %}" class="ml-2 text-gray-600">No, Cancel</a>
+        </form>
+    </div>
+{% endblock %}

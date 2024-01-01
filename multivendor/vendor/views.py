@@ -38,3 +38,12 @@ def edit_product(request, pk):
         form = ProductForm(instance=product)
 
     return render(request, 'vendor/edit_product.html', {'form': form, 'product': product})
+
+def delete_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+
+    if request.method == 'POST':
+        product.delete()
+        return redirect('product_list')
+
+    return render(request, 'vendor/delete_product.html', {'product': product})
