@@ -20,7 +20,7 @@ staticfiles/
 media/
 
 # Local development settings
-local_settings.py
+settings.py
 
 # Ignore environment-specific settings
 *.env

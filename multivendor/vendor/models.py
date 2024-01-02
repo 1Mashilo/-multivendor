@@ -17,10 +17,12 @@ class Product(models.Model):
     def get_absolute_url(self):
         return reverse('product-detail', args=[str(self.id)])
 
-class Purchase(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+class OrderDetail(models.Model):
+    customer_email = models.EmailField()
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    purchase_date = models.DateTimeField(auto_now_add=True)
+    amount = models.IntegerField()
+    stripe_payment_intent = models.CharField(max_length=200)
+    has_paid = models.BooleanField(default=False)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"{self.user.username} purchased {self.product.name}"
