@@ -41,6 +41,9 @@ def custom_logout(request):
     logout(request)
     return redirect('index')  
 
+def invalid(request):
+    return render(request, 'vendor/invalid.html')
+
 def product_list(request):
     products = Product.objects.all()
     return render(request, 'vendor/product_list.html', {'products': products})
@@ -61,8 +64,12 @@ def add_product(request):
         form = ProductForm()
 
     return render(request, 'vendor/add_product.html', {'form': form})
+
 def edit_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
+
+    if product.seller != request.user:
+        return redirect('invalid')
 
     if request.method == 'POST':
         form = ProductForm(request.POST, instance=product)
@@ -77,6 +84,9 @@ def edit_product(request, pk):
 def delete_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
 
+    if product.seller != request.user:
+        return redirect('invalid')
+
     if request.method == 'POST':
         product.delete()
         return redirect('product_list')
@@ -90,3 +100,6 @@ def dashboard(request):
     products = Product.objects.all()
 
     return render(request, 'vendor/dashboard.html', {'products': products, 'product_list_url': product_list_url, 'add_product_url': add_product_url})
+
+def invalid(request):
+    return render(request, 'vendor/invalid.html')
