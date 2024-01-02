@@ -57,7 +57,7 @@ def create_checkout_session(request,id):
     order.amount = int(product.price)
     order.save()
     
-    return JsonResponse({'sessionId':checkout_session.id})
+    return JsonResponse({'sessionId':checkout_session.pk})
     
 def payment_success_view(request):
     session_id = request.GET.get('session_id')
@@ -175,7 +175,6 @@ def dashboard(request):
 def invalid(request):
     return render(request, 'vendor/invalid.html')
 
-
 def my_purchases(request):
-    purchases = Purchase.objects.filter(user=request.user)
-    return render(request, 'vendor/my_purchases.html', {'purchases': purchases})
+    orders = OrderDetail.objects.filter(customer_email=request.user.email)
+    return render(request, 'vendor/purchases.html', {'orders':orders})
