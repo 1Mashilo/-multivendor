@@ -97,7 +97,7 @@ def dashboard(request):
     product_list_url = reverse('product_list')
     add_product_url = reverse('add_product')
 
-    products = Product.objects.all()
+    products = Product.objects.filter(seller=request.user)
 
     return render(request, 'vendor/dashboard.html', {'products': products, 'product_list_url': product_list_url, 'add_product_url': add_product_url})
 
