@@ -1,6 +1,6 @@
 # urls.py
 from django.urls import path
-from .views import index, product_list, product_detail,add_product,edit_product,delete_product,dashboard, register,custom_login,custom_logout,invalid
+from .views import index, product_list, product_detail,add_product,edit_product,delete_product,dashboard, register,custom_login,custom_logout,invalid, my_purchases
 
 
 urlpatterns = [
@@ -15,5 +15,6 @@ urlpatterns = [
     path('login/', custom_login, name='login'),
     path('logout/', custom_logout, name='logout'),
     path('invalid/', invalid, name='invalid'),
+    path('my_purchases/', my_purchases, name='my_purchases'),
 ]
 
