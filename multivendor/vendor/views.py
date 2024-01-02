@@ -2,6 +2,7 @@
 from django.shortcuts import render, get_object_or_404, redirect,reverse
 from .models import Product
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import AuthenticationForm
 from .forms import ProductForm, UserRegistrationForm
 
 def index(request):
@@ -14,11 +15,26 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('dashboard')  # or the desired redirect URL
+            return redirect('dashboard')
     else:
         form = UserRegistrationForm()
 
     return render(request, 'vendor/register.html', {'form': form})
+
+def custom_login(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('dashboard')
+    else:
+        form = AuthenticationForm()
+
+    return render(request, 'vendor/login.html', {'form': form})
 
 def product_list(request):
     products = Product.objects.all()
