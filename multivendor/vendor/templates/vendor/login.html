@@ -1,24 +1,24 @@
 {% extends 'vendor/base.html' %}
-{% block body %}
 
+{% block body %}
 <div class="flex flex-col justify-center items-center min-h-screen">
     <h1 class="font-bold text-lg">🔒 Login</h1>
-    <form class="shadow-lg p-10" method="post" action="{% url 'register' %}">
+    <form class="shadow-lg p-10" method="post" action="{% url 'login' %}">
         {% csrf_token %}
         <div class="mb-2">
-            <label >Username</label>
+            <label for="id_username">Username</label>
             <div class="border rounded py-2 px-2 mr-10">
-                {{form.username}}
+                {{ form.username }}
             </div>
         </div>
         <div class="mb-2">
-            <label >Password</label>
+            <label for="id_password">Password</label>
             <div class="border rounded py-2 px-2 mr-10">
-                {{form.password}}
+                {{ form.password }}
             </div>
         </div>
-        <button class="bg-green-500 text-white px-4 py-2"type="submit">Login</button>
+        <button class="bg-green-500 text-white px-4 py-2" type="submit">Login</button>
     </form>
+    <p class="m-10">New to the website? <span><a class="text-indigo-500" href="{% url 'register' %}">Click here</a> to register.</span></p>
 </div>
-
 {% endblock %}

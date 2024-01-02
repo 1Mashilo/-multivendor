@@ -1,7 +1,7 @@
 # views.py
 from django.shortcuts import render, get_object_or_404, redirect,reverse
 from .models import Product
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate,logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import ProductForm, UserRegistrationForm
 
@@ -35,6 +35,10 @@ def custom_login(request):
         form = AuthenticationForm()
 
     return render(request, 'vendor/login.html', {'form': form})
+
+def custom_logout(request):
+    logout(request)
+    return redirect('index')  
 
 def product_list(request):
     products = Product.objects.all()
