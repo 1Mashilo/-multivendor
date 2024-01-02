@@ -4,6 +4,7 @@ from .models import Product
 from django.contrib.auth import login, authenticate,logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import ProductForm, UserRegistrationForm
+from django.contrib.auth.decorators import login_required
 
 def index(request):
     return render(request, 'vendor/index.html')
@@ -52,14 +53,14 @@ def add_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            product = form.save(commit=False)
+            product.seller = request.user  # Associate the product with the current seller (logged-in user)
+            product.save()
             return redirect('product_list')
     else:
         form = ProductForm()
 
     return render(request, 'vendor/add_product.html', {'form': form})
-
-
 def edit_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
 
