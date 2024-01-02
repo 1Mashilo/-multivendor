@@ -1,6 +1,6 @@
 # views.py
 from django.shortcuts import render, get_object_or_404, redirect,reverse
-from .models import Product
+from .models import Product, Purchase
 from django.contrib.auth import login, authenticate,logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import ProductForm, UserRegistrationForm
@@ -103,3 +103,8 @@ def dashboard(request):
 
 def invalid(request):
     return render(request, 'vendor/invalid.html')
+
+
+def my_purchases(request):
+    purchases = Purchase.objects.filter(user=request.user)
+    return render(request, 'vendor/my_purchases.html', {'purchases': purchases})
