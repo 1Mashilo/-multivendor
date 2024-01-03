@@ -1,209 +1,164 @@
-# views.py
-
-from .models import Product,OrderDetail
+from django.shortcuts import render, get_object_or_404, reverse, redirect
+from .models import Product, OrderDetail
+from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse,HttpResponseNotFound
-import stripe,json
-from django.shortcuts import render, get_object_or_404, redirect,reverse
-from .models import Product, OrderDetail
-from django.contrib.auth import login, authenticate,logout
-from django.contrib.auth.forms import AuthenticationForm
+from django.http import JsonResponse, HttpResponseNotFound
+import stripe, json
 from .forms import ProductForm, UserRegistrationForm
-from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+import datetime
 
+# Create your views here.
 def index(request):
-    return render(request, 'vendor/index.html')
+    products = Product.objects.all()
+    return render(request, 'vendor/index.html', {'products': products})
 
-# In your Django view
-print("Publishable Key:", settings.STRIPE_PUBLISHABLE_KEY)
-
-
-def detail(request,id):
-    product = Product.objects.get(id=id)
+def detail(request, pk):
+    product = get_object_or_404(Product, pk=pk)
     stripe_publishable_key = settings.STRIPE_PUBLISHABLE_KEY
-    return render(request, 'vendor/detail.html',{'product':product,'stripe_publishable_key':stripe_publishable_key})
-    
-    
+    return render(request, 'vendor/detail.html', {'product': product, 'stripe_publishable_key': stripe_publishable_key})
+
 @csrf_exempt
-def create_checkout_session(request,id):
+def create_checkout_session(request, pk):
     request_data = json.loads(request.body)
-    product = Product.objects.get(id=id)
+    product = get_object_or_404(Product, pk=pk)
     stripe.api_key = settings.STRIPE_SECRET_KEY
     checkout_session = stripe.checkout.Session.create(
-        customer_email = request_data['email'],
-        payment_method_types = ['card'],
+        customer_email=request_data['email'],
+        payment_method_types=['card'],
         line_items=[
             {
-                'price_data':{
-                    'currency':'usd',
-                    'product_data':{
-                        'name':product.name,
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': product.name,
                     },
-                    'unit_amount':int(product.price * 100)
+                    'unit_amount': int(product.price * 100)
                 },
-                'quantity':1,
+                'quantity': 1,
             }
         ],
         mode='payment',
-        success_url = request.build_absolute_uri(reverse('success')) +
-        "?session_id={CHECKOUT_SESSION_ID}",
-        cancel_url = request.build_absolute_uri(reverse('failed')),
-        
+        success_url=request.build_absolute_uri(reverse('success')) +
+                    "?session_id={CHECKOUT_SESSION_ID}",
+        cancel_url=request.build_absolute_uri(reverse('failed')),
+
     )
-    
+
     order = OrderDetail()
     order.customer_email = request_data['email']
     order.product = product
     order.stripe_payment_intent = checkout_session['payment_intent']
     order.amount = int(product.price)
     order.save()
-    
-    return JsonResponse({'sessionId':checkout_session.pk})
-    
+
+    return JsonResponse({'sessionId': checkout_session.id})
+
 def payment_success_view(request):
     session_id = request.GET.get('session_id')
     if session_id is None:
         return HttpResponseNotFound()
     stripe.api_key = settings.STRIPE_SECRET_KEY
     session = stripe.checkout.Session.retrieve(session_id)
-    order = get_object_or_404(OrderDetail,stripe_payment_intent= session.payment_intent)
-    order.has_paid=True
+    order = get_object_or_404(OrderDetail, stripe_payment_intent=session.payment_intent)
+    order.has_paid = True
     # updating sales stats for a product
-    product = Product.objects.get(id=order.product.id)
+    product = get_object_or_404(Product, pk=order.product.pk)
     product.total_sales_amount = product.total_sales_amount + int(product.price)
     product.total_sales = product.total_sales + 1
     product.save()
     # updating sales stats for a product
     order.save()
-    
-    return render(request,'vendor/payment_success.html',{'order':order})
-    
+
+    return render(request, 'vendor/payment_success.html', {'order': order})
+
 def payment_failed_view(request):
-    return render(request,'vendor/failed.html')
+    return render(request, 'vendor/failed.html')
 
-
-def register(request):
+def create_product(request):
     if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('dashboard')
-    else:
-        form = UserRegistrationForm()
-
-    return render(request, 'vendor/register.html', {'form': form})
-
-def custom_login(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('dashboard')
-    else:
-        form = AuthenticationForm()
-
-    return render(request, 'vendor/login.html', {'form': form})
-
-def custom_logout(request):
-    logout(request)
-    return redirect('index')  
-
-def invalid(request):
-    return render(request, 'vendor/invalid.html')
-
-def product_list(request):
-    products = Product.objects.all()
-    return render(request, 'vendor/product_list.html', {'products': products})
-
-def product_detail(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-    return render(request, 'vendor/detail.html', {'product': product})
-
-def add_product(request):
-    if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES)
-        if form.is_valid():
-            product = form.save(commit=False)
-            product.seller = request.user  # Associate the product with the current seller (logged-in user)
-            product.save()
+        product_form = ProductForm(request.POST, request.FILES)
+        if product_form.is_valid():
+            new_product = product_form.save(commit=False)
+            new_product.seller = request.user
+            new_product.save()
             return redirect('index')
-    else:
-        form = ProductForm()
 
-    return render(request, 'vendor/add_product.html', {'form': form})
+    product_form = ProductForm()
+    return render(request, 'vendor/create_product.html', {'product_form': product_form})
 
-def edit_product(request, pk):
+def product_edit(request, pk):
     product = get_object_or_404(Product, pk=pk)
-
     if product.seller != request.user:
         return redirect('invalid')
 
+    product_form = ProductForm(request.POST or None, request.FILES or None, instance=product)
     if request.method == 'POST':
-        form = ProductForm(request.POST, instance=product)
-        if form.is_valid():
-            form.save()
-            return redirect('product_list')
-    else:
-        form = ProductForm(instance=product)
+        if product_form.is_valid():
+            product_form.save()
+            return redirect('index')
+    return render(request, 'vendor/product_edit.html', {'product_form': product_form, 'product': product})
 
-    return render(request, 'vendor/edit_product.html', {'form': form, 'product': product})
-
-def delete_product(request, pk):
+def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
-
     if product.seller != request.user:
         return redirect('invalid')
-
     if request.method == 'POST':
         product.delete()
-        return redirect('product_list')
-
-    return render(request, 'vendor/delete_product.html', {'product': product})
+        return redirect('index')
+    return render(request, 'vendor/delete.html', {'product': product})
 
 def dashboard(request):
     products = Product.objects.filter(seller=request.user)
-    return render(request, 'vendor/dashboard.html', {'products': products, 'product_list_url': product_list_url, 'add_product_url': add_product_url})
+    return render(request, 'vendor/dashboard.html', {'products': products})
+
+def register(request):
+    if request.method == 'POST':
+        user_form = UserRegistrationForm(request.POST)
+        new_user = user_form.save(commit=False)
+        new_user.set_password(user_form.cleaned_data['password'])
+        new_user.save()
+        return redirect('index')
+    user_form = UserRegistrationForm()
+    return render(request, 'vendor/register.html', {'user_form': user_form})
 
 def invalid(request):
     return render(request, 'vendor/invalid.html')
-
+@login_required
 def my_purchases(request):
     orders = OrderDetail.objects.filter(customer_email=request.user.email)
-    return render(request, 'vendor/purchases.html', {'orders':orders})
-
+    return render(request, 'vendor/purchases.html', {'orders': orders})
 
 def sales(request):
     orders = OrderDetail.objects.filter(product__seller=request.user)
     total_sales = orders.aggregate(Sum('amount'))
     print(total_sales)
-    
-    #365 day sales sum
+
+    # 365 day sales sum
     last_year = datetime.date.today() - datetime.timedelta(days=365)
-    data = OrderDetail.objects.filter(product__seller=request.user,created_on__gt=last_year)
+    data = OrderDetail.objects.filter(product__seller=request.user, created_on__gt=last_year)
     yearly_sales = data.aggregate(Sum('amount'))
-    
-    #30 day sales sum
+
+    # 30 day sales sum
     last_month = datetime.date.today() - datetime.timedelta(days=30)
-    data = OrderDetail.objects.filter(product__seller=request.user,created_on__gt=last_month)
+    data = OrderDetail.objects.filter(product__seller=request.user, created_on__gt=last_month)
     monthly_sales = data.aggregate(Sum('amount'))
-    
-    #7 day sales sum
+
+    # 7 day sales sum
     last_week = datetime.date.today() - datetime.timedelta(days=7)
-    data = OrderDetail.objects.filter(product__seller=request.user,created_on__gt=last_week)
+    data = OrderDetail.objects.filter(product__seller=request.user, created_on__gt=last_week)
     weekly_sales = data.aggregate(Sum('amount'))
-    
-    #Everday sum for the past 30 days
-    daily_sales_sums = OrderDetail.objects.filter(product__seller=request.user).values('created_on__date').order_by('created_on__date').annotate(sum=Sum('amount'))
-    
-    
-    
-    product_sales_sums = OrderDetail.objects.filter(product__seller=request.user).values('product__name').order_by('product__name').annotate(sum=Sum('amount'))
+
+    # Everyday sum for the past 30 days
+    daily_sales_sums = OrderDetail.objects.filter(product__seller=request.user).values('created_on__date').order_by(
+        'created_on__date').annotate(sum=Sum('amount'))
+
+    product_sales_sums = OrderDetail.objects.filter(product__seller=request.user).values('product__name').order_by(
+        'product__name').annotate(sum=Sum('amount'))
     print(product_sales_sums)
 
-    return render(request, 'vendo/sales.html',{'total_sales':total_sales,'yearly_sales':yearly_sales,'monthly_sales':monthly_sales,'weekly_sales':weekly_sales,'daily_sales_sums':daily_sales_sums,'product_sales_sums':product_sales_sums})
+    return render(request, 'vendor/sales.html',
+                  {'total_sales': total_sales, 'yearly_sales': yearly_sales, 'monthly_sales': monthly_sales,
+                   'weekly_sales': weekly_sales, 'daily_sales_sums': daily_sales_sums,
+                   'product_sales_sums': product_sales_sums})

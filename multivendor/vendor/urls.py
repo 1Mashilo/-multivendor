@@ -1,25 +1,20 @@
-# urls.py
 from django.urls import path
 from .import views
 from django.contrib.auth import views as auth_views
-
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('product/<int:pk>/',views.detail,name='detail'),
+    path('', views.index,name='index'),
+    path('product/<int:id>/',views.detail,name='detail'),
     path('success/',views.payment_success_view,name='success'),
     path('failed/',views.payment_failed_view,name='failed'),
-    path('api/checkout-session/<int:pk>/',views.create_checkout_session,name='api_checkout_session'),
-    path('products/<int:pk>/', views.product_detail, name='product-detail'),
-    path('add_product/', views.add_product, name='add_product'),
-    path('editproduct/<int:pk>/', views.edit_product, name='edit_product'),
-    path('deleteproduct/<int:pk>/', views.delete_product, name='delete_product'),
-    path('dashboard/', views.dashboard, name='dashboard'),
-    path('register/', views.register, name='register'),
-    path('login/', views.custom_login, name='login'),
-    path('logout/', views.custom_logout, name='logout'),
-    path('invalid/', views.invalid, name='invalid'),
-    path('purchases/', views.my_purchases, name='purchases'),
+    path('api/checkout-session/<int:id>/',views.create_checkout_session,name='api_checkout_session'),
+    path('createproduct/',views.create_product,name='createproduct'),
+    path('editproduct/<int:id>/',views.product_edit,name='editproduct'),
+    path('delete/<int:id>/',views.product_delete,name='delete'),
+    path('dashboard',views.dashboard,name='dashboard'),
+    path('register/',views.register,name='register'),
+    path('login/',auth_views.LoginView.as_view(template_name='vendor/login.html'),name='login'),
+    path('logout/',auth_views.LogoutView.as_view(template_name='vendor/logout.html'),name='logout'),
+    path('invalid/',views.invalid,name='invalid'),
+    path('purchases/',views.my_purchases,name='purchases'),
     path('sales/',views.sales,name='sales'),
 ]
-
-
