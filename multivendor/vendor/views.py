@@ -5,6 +5,8 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponseNotFound
 import stripe, json
+from django.contrib.auth import logout
+from django.views import View
 from .forms import ProductForm, UserRegistrationForm
 from django.db.models import Sum
 import datetime
@@ -75,6 +77,11 @@ def payment_success_view(request):
 
 def payment_failed_view(request):
     return render(request, 'vendor/failed.html')
+
+class CustomLogoutView(View):
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return render(request, 'vendor/logout.html')
 
 def create_product(request):
     if request.method == 'POST':
