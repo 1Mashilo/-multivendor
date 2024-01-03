@@ -132,7 +132,7 @@ def add_product(request):
             product = form.save(commit=False)
             product.seller = request.user  # Associate the product with the current seller (logged-in user)
             product.save()
-            return redirect('product_list')
+            return redirect('index')
     else:
         form = ProductForm()
 
@@ -167,11 +167,7 @@ def delete_product(request, pk):
     return render(request, 'vendor/delete_product.html', {'product': product})
 
 def dashboard(request):
-    product_list_url = reverse('product_list')
-    add_product_url = reverse('add_product')
-
     products = Product.objects.filter(seller=request.user)
-
     return render(request, 'vendor/dashboard.html', {'products': products, 'product_list_url': product_list_url, 'add_product_url': add_product_url})
 
 def invalid(request):
