@@ -15,6 +15,8 @@ from django.contrib.auth.decorators import login_required
 def index(request):
     return render(request, 'vendor/index.html')
 
+# In your Django view
+print("Publishable Key:", settings.STRIPE_PUBLISHABLE_KEY)
 
 
 def detail(request,id):
@@ -121,7 +123,7 @@ def product_list(request):
 
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
-    return render(request, 'vendor/product_detail.html', {'product': product})
+    return render(request, 'vendor/detail.html', {'product': product})
 
 def add_product(request):
     if request.method == 'POST':
