@@ -14,15 +14,15 @@ def index(request):
     products = Product.objects.all()
     return render(request, 'vendor/index.html', {'products': products})
 
-def detail(request, pk):
-    product = get_object_or_404(Product, pk=pk)
+def detail(request, id):
+    product = get_object_or_404(Product, id=id)
     stripe_publishable_key = settings.STRIPE_PUBLISHABLE_KEY
     return render(request, 'vendor/detail.html', {'product': product, 'stripe_publishable_key': stripe_publishable_key})
 
 @csrf_exempt
-def create_checkout_session(request, pk):
+def create_checkout_session(request, id):
     request_data = json.loads(request.body)
-    product = get_object_or_404(Product, pk=pk)
+    product = get_object_or_404(Product, id=id)
     stripe.api_key = settings.STRIPE_SECRET_KEY
     checkout_session = stripe.checkout.Session.create(
         customer_email=request_data['email'],
@@ -88,8 +88,8 @@ def create_product(request):
     product_form = ProductForm()
     return render(request, 'vendor/create_product.html', {'product_form': product_form})
 
-def product_edit(request, pk):
-    product = get_object_or_404(Product, pk=pk)
+def product_edit(request, id):
+    product = get_object_or_404(Product, id=id)
     if product.seller != request.user:
         return redirect('invalid')
 
@@ -100,8 +100,8 @@ def product_edit(request, pk):
             return redirect('index')
     return render(request, 'vendor/product_edit.html', {'product_form': product_form, 'product': product})
 
-def product_delete(request, pk):
-    product = get_object_or_404(Product, pk=pk)
+def product_delete(request, id):
+    product = get_object_or_404(Product, id=id)
     if product.seller != request.user:
         return redirect('invalid')
     if request.method == 'POST':
