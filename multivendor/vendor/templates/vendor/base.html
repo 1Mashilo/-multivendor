@@ -21,8 +21,11 @@
                 <a href="" class="mr-6 text-sm font-medium text-grey-500">Orders</a>
                 <a href="{% url 'createproduct' %}" class="mr-6 text-sm font-medium text-grey-500">Create Products</a>
                 <a href="{% url 'purchases' %}" class="mr-6 text-sm font-medium text-grey-500">My Purchases</a>
-                <a href="{% url 'logout' %}" class="mr-6 text-sm font-medium text-grey-500">Logout</a>
-                
+
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="mr-6 text-sm font-medium text-grey-500">Logout</button>
+                </form>
             </div>
         </div>
     </nav>
