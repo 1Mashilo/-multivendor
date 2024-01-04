@@ -5,6 +5,7 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponseNotFound
 import stripe, json
+from .forms import ProductForm, ProductImageForm
 from django.contrib.auth import logout
 from django.views import View
 from .forms import ProductForm, UserRegistrationForm
@@ -95,18 +96,33 @@ def create_product(request):
     product_form = ProductForm()
     return render(request, 'vendor/create_product.html', {'product_form': product_form})
 
+
+@login_required
 def product_edit(request, id):
     product = get_object_or_404(Product, id=id)
     if product.seller != request.user:
         return redirect('invalid')
 
-    product_form = ProductForm(request.POST or None, request.FILES or None, instance=product)
     if request.method == 'POST':
+        product_form = ProductForm(request.POST, request.FILES, instance=product)
+        image_form = ProductImageForm(request.POST, request.FILES)
+
+        if image_form.is_valid():
+            productimage = image_form.save(commit=False)
+            productimage.product = product
+            productimage.save()
+
+            return redirect('index')  # Adjust the redirect as needed
+
         if product_form.is_valid():
             product_form.save()
-            return redirect('index')
-    return render(request, 'vendor/product_edit.html', {'product_form': product_form, 'product': product})
 
+            return redirect('index')  # Adjust the redirect as needed
+    else:
+        product_form = ProductForm(instance=product)
+        image_form = ProductImageForm()
+
+    return render(request, 'vendor/product_edit.html', {'product_form': product_form, 'image_form': image_form, 'product': product})
 def product_delete(request, id):
     product = get_object_or_404(Product, id=id)
     if product.seller != request.user:
